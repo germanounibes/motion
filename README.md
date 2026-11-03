@@ -40,8 +40,6 @@ Serve para robôs, animatrônicos, olhos mecânicos, braços articulados, instal
 | 💾 **Autosave e presets** | Nada se perde. Importe e exporte em JSON |
 | 🔌 **USB direto do navegador** | Web Serial nativo, com WebUSB como reserva |
 | 📱 **Instalável e offline** | Abre do ícone na tela inicial, sem internet |
-| 👀 **Modo prévia** | Dá para animar sem ter o Arduino conectado |
-
 ## Como funciona
 
 ```
