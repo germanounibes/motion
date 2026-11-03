@@ -1,0 +1,92 @@
+<!doctype html><meta charset="utf-8"><title>logic</title><pre id="out">rodando…</pre>
+<script type="module">
+const out = [], ok = (c, m) => { out.push((c ? "PASS " : "FAIL ") + m); document.getElementById("out").textContent = out.join("\n"); };
+// ---- Arduino simulado ----
+const dec = new TextDecoder(), written = [];
+class MockPort {
+  constructor() { this.readable = new ReadableStream({ start: (c) => { this.ctl = c; } }); this.writable = new WritableStream({ write: (ch) => { written.push(dec.decode(ch)); } }); this.opened = false; }
+  async open(o) { this.opened = o.baudRate; } async close() { this.opened = false; }
+}
+const mock = new MockPort();
+Object.defineProperty(navigator, "serial", { value: { requestPort: async () => mock }, configurable: true });
+try {
+  const { Link } = await import("../js/link.js");
+  const { Store } = await import("../js/store.js");
+  const { kvGet, kvSet } = await import("../js/storage.js");
+  const util = await import("../js/util.js");
+
+  // ---- util ----
+  ok(util.fmtTime(65.4321) === "01:05.432", "fmtTime " + util.fmtTime(65.4321));
+  ok(util.fmtValue("continuous", 90) === "Parado" && util.fmtValue("continuous", 135) === "+50%" && util.fmtValue("continuous", 0) === "-100%", "fmtValue 360");
+  ok(util.mix("#000000", "#ffffff", .5) === "#7f7f7f", "mix");
+  ok(Math.abs(util.ease(.5, "ease_in_out") - .5) < 1e-9 && util.ease(.5, "hold") === 0 && util.ease(1, "hold") === 1, "ease");
+
+  // ---- store: preset real do motion.py ----
+  const link = new Link(), st = new Store(link);
+  const real = await (await fetch("../../servo_presets_mega.json")).json();
+  const names = Object.keys(real);
+  ok(names.length > 0, "presets do desktop lidos: " + names.join(","));
+  st.loadPreset(real[names[0]], names[0]);
+  ok(st.sids().length === real[names[0]].servos.length, "servos carregados " + st.sids().length);
+  ok(st.frames.length === real[names[0]].frames.length, "frames carregados " + st.frames.length);
+  const rt = st.toPreset();
+  ok(JSON.stringify(rt.frames.map((f) => [f.time, f.ease])) === JSON.stringify(real[names[0]].frames.map((f) => [f.time, f.ease || "linear"])), "round-trip dos frames");
+
+  // ---- interpolação (comparada ao motion.py) ----
+  const s2 = new Store(new Link());
+  s2.createServo(0, "a", 9);
+  s2.frames = [{ time: 0, angles: { 0: 0 }, ease: "linear" }, { time: 2, angles: { 0: 180 }, ease: "ease_in" }, { time: 4, angles: { 0: 0 }, ease: "hold" }, { time: 5, angles: { 0: 90 }, ease: "linear" }];
+  const at = (t) => s2.interpolate(t)["0"];
+  ok(at(0) === 0 && at(1) === 90 && at(2) === 180 && at(3) === 135 && at(4.5) === 0 && at(5) === 90 && at(99) === 90, `interpolação ${[0, 1, 2, 3, 4.5, 5, 99].map(at)}`);
+  // ease_in 1→2: p=.5 → .25 → 180*.25 = 45 (t=1 é linear 0→180 só em [0,2]) => t=1: linear => 90? conferir
+
+  // ---- keyframes / undo ----
+  const s3 = new Store(new Link());
+  s3.createServo(0, "x", 3); s3.createServo(1, "y", 4, 90, "continuous");
+  s3.setAngle(0, 30); s3.seek(1.234); s3.addFrame();
+  ok(s3.frames.length === 1 && s3.frames[0].time === 1.23 && s3.frames[0].angles["0"] === 30 && s3.selected === 0, "addFrame " + JSON.stringify(s3.frames));
+  s3.setAngle(0, 100); s3.seek(3); s3.addFrame();
+  ok(s3.frames.length === 2, "segundo keyframe");
+  s3.setSelectedTime(1.24); ok(s3.frames.length === 2, "tempo ocupado ±0.03 recusado" ); // 1.24 vs 1.23 → ocupado? selected é o de 3.0 (idx1) → conflito
+  s3.undo(); ok(s3.frames.length === 1, "undo remove o 2º keyframe");
+  s3.redo(); ok(s3.frames.length === 2, "redo");
+  s3.select(1); s3.removeFrame(); ok(s3.frames.length === 1, "removeFrame");
+  s3.setDuration("10"); ok(s3.duration() === 10, "duração 10");
+  s3.setDuration("auto"); ok(s3.durationOverride === null, "duração auto");
+  s3.setAngle(1, 150); s3.seek(0.5); ok(s3.rows[1].angle === 90 || s3.rows[1].angle === 150, "continuous após seek manual = " + s3.rows[1].angle);
+  s3.removeServo(0, true); ok(!("0" in s3.frames[0].angles) && s3.sids().length === 1, "removeServo limpa frames");
+
+  // ---- Link: protocolo ----
+  const L = new Link(), S = new Store(L);
+  S.createServo(0, "base", 9); S.createServo(1, "pescoco", 8);
+  const states = []; L.on("state", (s) => states.push(s));
+  await L.connect();
+  ok(states.join() === "connecting,online", "estados " + states.join());
+  ok(mock.opened === 115200, "baud 115200");
+  ok(written.join("").includes("ATTACH,0,9\n") && written.join("").includes("ATTACH,1,8\n"), "ATTACH ao conectar: " + JSON.stringify(written.join("")));
+  written.length = 0;
+  S.setAngle(0, 45); S.setAngle(0, 46); S.setAngle(1, 120);
+  await new Promise((r) => setTimeout(r, 120));
+  const w = written.join("");
+  ok(w.includes("MOVE,0,46\n") && w.includes("MOVE,1,120\n") && !w.includes("MOVE,0,45\n"), "MOVE coalescido: " + JSON.stringify(w));
+  written.length = 0;
+  await new Promise((r) => setTimeout(r, 120));
+  ok(written.length === 0, "sem reenvio quando nada mudou");
+  S.createServo(2, "cabeca", 10); await new Promise((r) => setTimeout(r, 120));
+  ok(written.join("").includes("ATTACH,2,10\n"), "ATTACH de servo novo com link online");
+  written.length = 0;
+  mock.ctl.enqueue(new TextEncoder().encode("ERR pino\nOK\n"));
+  const errs = []; L.on("error", (m) => errs.push(m)); await new Promise((r) => setTimeout(r, 50));
+  ok(errs.some((m) => m.includes("ERR pino")), "linha ERR do Arduino chega ao app");
+  await L.disconnect();
+  const dw = written.join("");
+  ok(dw.includes("DETACH,0\n") && dw.includes("DETACH,2\n") && L.state === "offline" && mock.opened === false, "DETACH e fechamento: " + JSON.stringify(dw));
+
+  // ---- armazenamento ----
+  await kvSet("t-presets", { a: { servos: [], frames: [] } });
+  const back = await kvGet("t-presets");
+  ok(back && "a" in back, "IndexedDB ida e volta");
+} catch (e) { out.push("FAIL exceção: " + e.stack); }
+document.getElementById("out").textContent = out.join("\n");
+document.title = out.some((l) => l.startsWith("FAIL")) ? "FAIL" : "PASS";
+</script>

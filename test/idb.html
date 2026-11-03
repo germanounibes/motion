@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><title>idb</title><pre id="out">rodando…</pre>
+<script type="module">
+import { kvGet, kvSet } from "../js/storage.js";
+const o = document.getElementById("out");
+const okSet = await kvSet("t", { a: 1 }); const back = await kvGet("t"); const none = await kvGet("nao-existe");
+o.textContent = `RESULT set=${okSet} get=${JSON.stringify(back)} none=${none}`;
+</script>

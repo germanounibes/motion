@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2e2260">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<title>Motion Studio</title>
+</head>
+<body data-tab="scene">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><rect x="4.5" y="5" width="2.6" height="14" rx="1" fill="currentColor"/><path d="M19 5v14L8.5 12z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><rect x="16.9" y="5" width="2.6" height="14" rx="1" fill="currentColor"/><path d="M5 5v14l10.5-7z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><path d="M17 8H8a4 4 0 0 0-4 4v0a4 4 0 0 0 4 4h1M7 16h9a4 4 0 0 0 4-4v0a4 4 0 0 0-4-4h-1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M14 5l3 3-3 3M10 13l-3 3 3 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 10l1 10h9l1-10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-diamond-o" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h10a6 6 0 0 1 0 12" transform="translate(0 -3)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 7l5 5-5 5M20 12H10a6 6 0 0 0 0 12" transform="translate(0 -3)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 5v14M20 5v14M8 12h8M8 12l3-3M8 12l3 3M16 12l-3-3M16 12l-3 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 9l5-5 5 5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M8 3v5M16 3v5M6 8h12v4a6 6 0 0 1-12 0zM12 18v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-servo" viewBox="0 0 24 24"><circle cx="12" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4 16a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13V8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-scene" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M3 7h10M3 12h18M3 17h13" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="16" cy="7" r="2" fill="currentColor"/><circle cx="8" cy="17" r="2" fill="currentColor"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="9" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+  </defs>
+</svg>
+
+<header id="top">
+  <div class="logo">Ms</div>
+  <div class="ttl"><h1>Motion Studio</h1><small>Animação de servos</small></div>
+  <button id="projectChip" class="chip proj" title="Renomear projeto">Sem título</button>
+  <div class="grow"></div>
+  <button id="connPill" class="pill" title="Detalhes da conexão"><i class="dot"></i><span id="connTxt">Offline</span></button>
+  <button id="btnConnect" class="btn primary"><svg class="ic"><use href="#i-plug"/></svg><span>Conectar</span></button>
+</header>
+
+<main id="layout">
+  <section class="panel" id="pServos">
+    <div class="phead"><i class="pdot" style="--c:#ff6b8b"></i><h2>Servos</h2><span class="chip" id="servoCount">0 / 12</span><div class="grow"></div>
+      <button class="btn primary sm" id="btnAdd"><svg class="ic"><use href="#i-plus"/></svg><span>Adicionar</span></button></div>
+    <div class="pbody" id="servoList"></div>
+  </section>
+
+  <section class="panel" id="pViewer">
+    <div class="phead"><i class="pdot" style="--c:#4cd9f0"></i><h2>Visualizador</h2><span class="hint hide-sm">Arraste um mostrador para posicionar o servo</span><div class="grow"></div>
+      <span class="pill static" id="livePill"><i class="dot"></i><span>Pré-visualização</span></span></div>
+    <div class="vwrap"><canvas id="viewer"></canvas></div>
+    <div id="vSlot">
+      <div id="transport">
+        <div id="timecode"><span class="tc-main">00:00</span><span class="tc-ms">.000</span><span class="tc-tot">/ 00:00.000</span></div>
+        <div class="tbtns">
+          <button class="rbtn" id="bPrev" title="Keyframe anterior"><svg class="ic"><use href="#i-prev"/></svg></button>
+          <button class="rbtn" id="bStop" title="Parar e voltar ao início"><svg class="ic"><use href="#i-stop"/></svg></button>
+          <button class="rbtn big" id="bPlay" title="Play / Pause (Espaço)"><svg class="ic"><use href="#i-play"/></svg></button>
+          <button class="rbtn" id="bNext" title="Próximo keyframe"><svg class="ic"><use href="#i-next"/></svg></button>
+          <button class="rbtn" id="bLoop" title="Repetir em loop (L)"><svg class="ic"><use href="#i-loop"/></svg></button>
+          <button class="rbtn kf" id="bKey" title="Criar keyframe no playhead (K)"><svg class="ic"><use href="#i-diamond"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="pInspector">
+    <div class="phead"><i class="pdot" style="--c:#ffd23f"></i><h2>Inspetor</h2></div>
+    <div class="pbody pad" id="inspBody">
+      <div class="row sel-row">
+        <svg class="ic sel-chip" id="selChip"><use href="#i-diamond-o"/></svg>
+        <b id="selLabel">Nenhum keyframe selecionado</b>
+        <div class="grow"></div>
+        <button class="ibtn" id="bRemove" title="Remover keyframe (Del)"><svg class="ic"><use href="#i-trash"/></svg></button>
+      </div>
+      <div class="row field">
+        <label for="frameTime">Tempo</label><div class="grow"></div>
+        <input id="frameTime" type="text" inputmode="decimal" autocomplete="off"><span class="unit">s</span>
+      </div>
+      <label class="lbl">Interpolação até o próximo keyframe</label>
+      <div id="easePicker"></div>
+      <button class="btn primary block" id="bAddFrame"><svg class="ic"><use href="#i-diamond"/></svg><span>Criar keyframe no playhead</span></button>
+      <div class="row two">
+        <button class="btn" id="bUpdatePose">Atualizar pose</button>
+        <button class="btn" id="bGoto">Ir para a pose</button>
+      </div>
+      <hr>
+      <div class="row">
+        <h3>Presets</h3><div class="grow"></div>
+        <button class="ibtn" id="bImport" title="Importar JSON"><svg class="ic"><use href="#i-download"/></svg></button>
+        <button class="ibtn" id="bExport" title="Exportar JSON"><svg class="ic"><use href="#i-upload"/></svg></button>
+      </div>
+      <ul id="presetList"></ul>
+      <div class="row three">
+        <button class="btn" id="bSave"><svg class="ic"><use href="#i-save"/></svg><span>Salvar</span></button>
+        <button class="btn" id="bLoad"><svg class="ic"><use href="#i-folder"/></svg><span>Carregar</span></button>
+        <button class="btn danger" id="bDelPreset" title="Excluir preset"><svg class="ic"><use href="#i-trash"/></svg></button>
+      </div>
+      <p class="note">Os presets ficam salvos só neste navegador. Use exportar para fazer backup ou levar para o computador.</p>
+      <input type="file" id="fileIn" accept=".json,application/json" hidden>
+    </div>
+  </section>
+
+  <section class="panel" id="pTimeline">
+    <div class="phead tl-head">
+      <i class="pdot" style="--c:#b48cff"></i><h2 class="hide-xs">Linha do tempo</h2>
+      <button class="ibtn" id="bUndo" title="Desfazer (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+      <button class="ibtn" id="bRedo" title="Refazer (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+      <button class="btn sm" id="bKey2" title="Criar keyframe no playhead (K)"><svg class="ic"><use href="#i-diamond"/></svg><span>Keyframe</span></button>
+      <div class="grow"></div>
+      <label class="dur"><span class="hide-sm">Duração (s)</span><input id="durIn" type="text" inputmode="decimal" value="Auto" autocomplete="off"></label>
+      <button class="btn ghost sm" id="bAuto" title="Duração automática">Auto</button>
+      <span class="sep"></span>
+      <button class="ibtn" id="bZoomOut" title="Afastar"><svg class="ic"><use href="#i-minus"/></svg></button>
+      <input id="zoomIn" class="zoom hide-sm" type="range" min="8" max="280" step="1" value="80" aria-label="Zoom">
+      <button class="ibtn" id="bZoomIn" title="Aproximar (Ctrl + roda)"><svg class="ic"><use href="#i-plus"/></svg></button>
+      <button class="ibtn" id="bFit" title="Ajustar à janela"><svg class="ic"><use href="#i-fit"/></svg></button>
+    </div>
+    <div class="tlwrap"><canvas id="timeline"></canvas></div>
+  </section>
+</main>
+
+<div id="dock"></div>
+
+<nav id="tabs">
+  <button data-tab="servos"><svg class="ic"><use href="#i-servo"/></svg><span>Servos</span></button>
+  <button data-tab="scene" class="on"><svg class="ic"><use href="#i-scene"/></svg><span>Cena</span></button>
+  <button data-tab="timeline"><svg class="ic"><use href="#i-timeline"/></svg><span>Timeline</span></button>
+  <button data-tab="inspector"><svg class="ic"><use href="#i-sliders"/></svg><span>Inspetor</span></button>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm" novalidate>
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgSub" class="note"></p>
+    <div id="dlgFields"></div>
+    <p id="dlgErr" class="err"></p>
+    <div class="dlg-foot">
+      <button type="button" class="btn ghost" id="dlgCancel">Cancelar</button>
+      <button type="submit" class="btn primary" id="dlgOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="connDlg">
+  <div class="dlg-in">
+    <h3>Conexão com o Arduino</h3>
+    <ul class="checks" id="checks"></ul>
+    <label class="check"><input type="checkbox" id="forcePoly"> Forçar modo WebUSB (polyfill) — use se o nativo não listar o Arduino</label>
+    <div class="row"><button class="btn primary" id="connGo"><svg class="ic"><use href="#i-plug"/></svg><span>Conectar</span></button>
+      <span class="note" id="connNote">115200 baud · espera ~2 s o Arduino reiniciar</span></div>
+    <div id="log"></div>
+    <form id="cmdForm" class="row nowrap"><input id="cmd" type="text" placeholder="Comando manual, ex.: MOVE,0,45" autocapitalize="characters" autocomplete="off" disabled><button class="btn" id="cmdSend" disabled>Enviar</button></form>
+    <div class="dlg-foot"><button class="btn ghost" id="connClose">Fechar</button></div>
+  </div>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
