@@ -57,12 +57,7 @@ O app interpola os ângulos entre os keyframes e envia as posições a cerca de 
 
 ### 1. Rodar
 
-```bash
-cd motion-pwa
-python3 -m http.server 8765
-```
-
-Abra **http://localhost:8765** no Chrome ou Edge.
+Abra **http://germanounibes.github.io/motion** no Chrome ou Edge.
 
 ### 2. Conectar o Arduino
 
@@ -73,7 +68,7 @@ Abra **http://localhost:8765** no Chrome ou Edge.
 
 ### 3. Usar no celular
 
-Publique a pasta em qualquer host **HTTPS** (GitHub Pages, Netlify...). Abra no Chrome do Android, use **Adicionar à tela inicial** e ligue o Mega por um cabo **USB OTG**.
+Abra no Chrome do Android, use **Adicionar à tela inicial** e ligue o Mega por um cabo **USB OTG**.
 
 > **Compatibilidade:** placas originais (`0x2341`) e Arduino SRL (`0x2a03`) funcionam via Web Serial e WebUSB.
 > Clones com chip **CH340** não são CDC-ACM, então só abrem por Web Serial nativo (desktop).
