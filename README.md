@@ -40,6 +40,8 @@ Serve para robôs, animatrônicos, olhos mecânicos, braços articulados, instal
 | 💾 **Autosave e presets** | Nada se perde. Importe e exporte em JSON |
 | 🔌 **USB direto do navegador** | Web Serial nativo, com WebUSB como reserva |
 | 📱 **Instalável e offline** | Abre do ícone na tela inicial, sem internet |
+| 👀 **Modo prévia** | Dá para animar sem ter o Arduino conectado |
+
 ## Como funciona
 
 ```
@@ -55,7 +57,12 @@ O app interpola os ângulos entre os keyframes e envia as posições a cerca de 
 
 ### 1. Rodar
 
-Abra **http://germanounibes.github.io/motion** no Chrome ou Edge.
+```bash
+cd motion-pwa
+python3 -m http.server 8765
+```
+
+Abra **http://localhost:8765** no Chrome ou Edge.
 
 ### 2. Conectar o Arduino
 
@@ -66,10 +73,11 @@ Abra **http://germanounibes.github.io/motion** no Chrome ou Edge.
 
 ### 3. Usar no celular
 
-Abra no Chrome do Android, use **Adicionar à tela inicial** e ligue o Mega por um cabo **USB OTG**.
+Publique a pasta em qualquer host **HTTPS** (GitHub Pages, Netlify...). Abra no Chrome do Android, use **Adicionar à tela inicial** e ligue o Mega por um cabo **USB OTG**.
 
-> **Compatibilidade:** placas originais (`0x2341`) e Arduino SRL (`0x2a03`) funcionam via Web Serial e WebUSB.
-> Clones com chip **CH340** não são CDC-ACM, então só abrem por Web Serial nativo (desktop).
+> **Compatibilidade:** placas originais (`0x2341`), Arduino SRL (`0x2a03`) e **clones com chip CH340** (`0x1a86`) funcionam
+> pelo WebUSB, inclusive no celular. O CH340 usa um driver próprio em `js/ch340.js`, porque o polyfill do Google só abre chips CDC-ACM.
+> No Android o app já escolhe o modo WebUSB sozinho.
 
 ## Atalhos
 
@@ -114,6 +122,7 @@ Sem framework e sem etapa de build: JavaScript puro em módulos ES.
 index.html · manifest.webmanifest · sw.js    PWA e service worker (offline)
 js/store.js      estado, keyframes, interpolação, reprodução, desfazer/refazer
 js/link.js       conexão serial e protocolo
+js/ch340.js      driver WebUSB do chip CH340 (clones do Arduino)
 js/timeline.js   linha do tempo (toque, pinça, mouse)
 js/viewer.js     mostradores
 js/storage.js    IndexedDB (presets e autosave)

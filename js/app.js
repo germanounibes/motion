@@ -311,7 +311,7 @@ function renderChecks() {
   for (const [ok, label, why] of rows) { const li = document.createElement("li"); li.className = ok ? "ok" : "bad"; li.textContent = label + (ok ? "" : " — " + why); ul.appendChild(li); }
   const m = document.createElement("li"); m.className = Link.hasNative ? "ok" : Link.hasUsb ? "warn" : "bad";
   m.textContent = Link.hasNative ? "Modo: Web Serial nativo" : Link.hasUsb ? "Modo: polyfill via WebUSB" : "Modo: indisponível neste navegador"; ul.appendChild(m);
-  if (!Link.hasNative && Link.hasUsb) { $("#forcePoly").checked = true; link.forcePolyfill = true; }
+  if (Link.hasUsb && (!Link.hasNative || /Android/i.test(navigator.userAgent))) { $("#forcePoly").checked = true; link.forcePolyfill = true; }
   $("#forcePoly").disabled = !Link.hasNative;
 }
 renderConn();

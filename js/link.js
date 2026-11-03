@@ -1,12 +1,14 @@
 // Conexão com o Arduino Mega via Web Serial (nativo) ou WebUSB (polyfill).
 // Protocolo (igual ao motion.py): ATTACH,id,pino · MOVE,id,valor · DETACH,id  (linhas terminadas em \n)
 import { BAUD, Emitter } from "./util.js";
+import { Ch340Port, CH340_VENDOR } from "./ch340.js";
 
 const BOOT_WAIT_MS = 1800;         // o Arduino reinicia ao abrir a porta
 const FLUSH_MS = 33;               // ~30 Hz para o Arduino
 const POLYFILL_URL = new URL("../vendor/web-serial-polyfill.js", import.meta.url).href;
-// Mega original (0x2341) e Arduino SRL (0x2a03). Clones CH340 (0x1a86) não são CDC-ACM: o polyfill não os abre.
-const USB_FILTERS = [{ usbVendorId: 0x2341 }, { usbVendorId: 0x2a03 }];
+// Mega original (0x2341) e Arduino SRL (0x2a03) usam o polyfill CDC-ACM; clones CH340 (0x1a86) usam js/ch340.js.
+// classCode 2 = interface de controle CDC; o CH340 é "vendor specific", então o filtro dele é só o fabricante.
+const USB_FILTERS = [{ vendorId: 0x2341, classCode: 2 }, { vendorId: 0x2a03, classCode: 2 }, { vendorId: CH340_VENDOR }];
 
 export class Link extends Emitter {
   constructor() {
@@ -43,16 +45,22 @@ export class Link extends Emitter {
   // ----- conexão -----
   async connect() {
     if (this.state !== "offline") return;
-    let api, opts = {}, name;
+    let name;
     try {
-      if (Link.hasNative && !this.forcePolyfill) { api = navigator.serial; name = "Web Serial nativo"; }
+      if (Link.hasNative && !this.forcePolyfill) { name = "Web Serial nativo"; this.port = await navigator.serial.requestPort({}); }
       else {
         const mod = await import(POLYFILL_URL);
-        api = mod.serial; opts = { filters: USB_FILTERS }; name = "polyfill WebUSB";
+        const dev = await navigator.usb.requestDevice({ filters: USB_FILTERS });   // exige um toque/clique do usuário
+        if (dev.vendorId === CH340_VENDOR) { name = "WebUSB (driver CH340)"; this.port = new Ch340Port(dev); }
+        else { name = "polyfill WebUSB"; this.port = new mod.SerialPort(dev); }
       }
-    } catch (e) { this.log("err", "Não consegui carregar o polyfill: " + e.message); this.emit("error", "Sem suporte a serial neste navegador"); return; }
+    } catch (e) {
+      this.port = null;
+      if (e && e.name === "NotFoundError") this.log("sys", "Nenhuma porta escolhida.");
+      else { this.log("err", `Não consegui pedir a porta: ${e && e.message}`); this.emit("error", "Sem suporte a serial neste navegador"); }
+      return;
+    }
     try {
-      this.port = await api.requestPort(opts);          // exige um toque/clique do usuário
       this._setState("connecting");
       await this.port.open({ baudRate: BAUD });
     } catch (e) {
